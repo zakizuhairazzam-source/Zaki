@@ -1,27 +1,60 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Game Tembak Sederhana</title>
-  <style>
-    body {
-      background: #111;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
-    canvas {
-      background: black;
-      border: 2px solid white;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Game Tembak HP</title>
+<style>
+body {
+  margin: 0;
+  background: #111;
+  color: white;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+canvas {
+  background: black;
+  border: 2px solid white;
+  margin-top: 10px;
+}
+
+/* Tombol HP */
+.controls {
+  display: flex;
+  justify-content: space-between;
+  width: 400px;
+  margin-top: 10px;
+}
+
+button {
+  width: 120px;
+  height: 60px;
+  font-size: 20px;
+  border: none;
+  border-radius: 10px;
+  background: #333;
+  color: white;
+}
+
+button:active {
+  background: orange;
+}
+</style>
 </head>
+
 <body>
 
+<h3>🎮 Game Tembak HP</h3>
+
 <canvas id="gameCanvas" width="400" height="600"></canvas>
+
+<div class="controls">
+  <button id="left">⬅</button>
+  <button id="shoot">🔫</button>
+  <button id="right">➡</button>
+</div>
 
 <script>
 const canvas = document.getElementById("gameCanvas");
@@ -32,16 +65,14 @@ let score = 0;
 // Player
 const player = {
   x: 180,
-  y: 550,
+  y: 540,
   width: 40,
   height: 40,
-  speed: 5
+  speed: 6
 };
 
-// Bullet
+// Bullet & Enemy
 let bullets = [];
-
-// Enemy
 let enemies = [];
 
 function drawPlayer() {
@@ -96,7 +127,6 @@ function update() {
   drawEnemies();
   drawScore();
 
-  // Collision bullet vs enemy
   bullets.forEach((b, bi) => {
     enemies.forEach((e, ei) => {
       if (collision(b, e)) {
@@ -110,21 +140,36 @@ function update() {
   requestAnimationFrame(update);
 }
 
-// Controls
+// 🔘 Fungsi Tombol HP
+document.getElementById("left").ontouchstart = () => {
+  if (player.x > 0) player.x -= player.speed;
+};
+
+document.getElementById("right").ontouchstart = () => {
+  if (player.x < 360) player.x += player.speed;
+};
+
+document.getElementById("shoot").ontouchstart = () => {
+  bullets.push({
+    x: player.x + 18,
+    y: player.y,
+    width: 4,
+    height: 10,
+    speed: 8
+  });
+};
+
+// Keyboard (opsional, kalau dibuka di PC)
 document.addEventListener("keydown", e => {
-  if (e.key === "ArrowLeft" && player.x > 0) {
-    player.x -= player.speed;
-  }
-  if (e.key === "ArrowRight" && player.x < 360) {
-    player.x += player.speed;
-  }
+  if (e.key === "ArrowLeft") player.x -= player.speed;
+  if (e.key === "ArrowRight") player.x += player.speed;
   if (e.key === " ") {
     bullets.push({
       x: player.x + 18,
       y: player.y,
       width: 4,
       height: 10,
-      speed: 7
+      speed: 8
     });
   }
 });
