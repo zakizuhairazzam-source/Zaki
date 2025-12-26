@@ -1,48 +1,137 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <title>Game game gaje</title>
+  <meta charset="UTF-8">
+  <title>Game Tembak Sederhana</title>
   <style>
     body {
-      font-family: Arial;
-      text-align: center;
-      background: #f2f2f2;
+      background: #111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+      font-family: Arial, sans-serif;
     }
-    button {
-      font-size: 30px;
-      padding: 20px;
-      margin: 20px;
-      cursor: pointer;
+    canvas {
+      background: black;
+      border: 2px solid white;
     }
   </style>
 </head>
 <body>
 
-  <h1>🎮 game gajelas</h1>
-  <p>Skor: <span id="score">0</span></p>
-  <p>Waktu: <span id="time">10</span> detik</p>
+<canvas id="gameCanvas" width="400" height="600"></canvas>
 
-  <button onclick="klik()">KLIK!</button>
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 
-  <script>
-    let score = 0;
-    let time = 10;
+let score = 0;
 
-    function klik() {
-      score++;
-      document.getElementById("score").innerText = score;
-    }
+// Player
+const player = {
+  x: 180,
+  y: 550,
+  width: 40,
+  height: 40,
+  speed: 5
+};
 
-    let timer = setInterval(function() {
-      time--;
-      document.getElementById("time").innerText = time;
+// Bullet
+let bullets = [];
 
-      if (time === 0) {
-        clearInterval(timer);
-        alert("ini skor nu anj: " + score);
+// Enemy
+let enemies = [];
+
+function drawPlayer() {
+  ctx.fillStyle = "lime";
+  ctx.fillRect(player.x, player.y, player.width, player.height);
+}
+
+function drawBullets() {
+  ctx.fillStyle = "yellow";
+  bullets.forEach(b => {
+    ctx.fillRect(b.x, b.y, b.width, b.height);
+    b.y -= b.speed;
+  });
+}
+
+function drawEnemies() {
+  ctx.fillStyle = "red";
+  enemies.forEach(e => {
+    ctx.fillRect(e.x, e.y, e.width, e.height);
+    e.y += e.speed;
+  });
+}
+
+function spawnEnemy() {
+  enemies.push({
+    x: Math.random() * 360,
+    y: -40,
+    width: 40,
+    height: 40,
+    speed: 2
+  });
+}
+
+function collision(a, b) {
+  return a.x < b.x + b.width &&
+         a.x + a.width > b.x &&
+         a.y < b.y + b.height &&
+         a.y + a.height > b.y;
+}
+
+function drawScore() {
+  ctx.fillStyle = "white";
+  ctx.font = "20px Arial";
+  ctx.fillText("Score: " + score, 10, 25);
+}
+
+function update() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  drawPlayer();
+  drawBullets();
+  drawEnemies();
+  drawScore();
+
+  // Collision bullet vs enemy
+  bullets.forEach((b, bi) => {
+    enemies.forEach((e, ei) => {
+      if (collision(b, e)) {
+        bullets.splice(bi, 1);
+        enemies.splice(ei, 1);
+        score++;
       }
-    }, 1000);
-  </script>
+    });
+  });
+
+  requestAnimationFrame(update);
+}
+
+// Controls
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowLeft" && player.x > 0) {
+    player.x -= player.speed;
+  }
+  if (e.key === "ArrowRight" && player.x < 360) {
+    player.x += player.speed;
+  }
+  if (e.key === " ") {
+    bullets.push({
+      x: player.x + 18,
+      y: player.y,
+      width: 4,
+      height: 10,
+      speed: 7
+    });
+  }
+});
+
+setInterval(spawnEnemy, 1000);
+update();
+</script>
 
 </body>
 </html>
